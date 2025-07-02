@@ -10,6 +10,8 @@ import { InvoicePreview } from "@/components/upload/invoice-preview";
 import { UploadedFile } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { UploadService } from "@/lib/services/upload-service";
+import { useRouter } from "next/navigation";
 
 type UploadStep = "upload" | "processing" | "duplicate-check" | "preview" | "complete";
 
@@ -37,52 +39,96 @@ interface Duplicate {
 }
 
 export default function UploadPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<UploadStep>("upload");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [ocrData, setOcrData] = useState<OCRData | null>(null);
   const [duplicates, setDuplicates] = useState<Duplicate[]>([]);
+  const [uploadData, setUploadData] = useState<{
+    file_url: string;
+    file_name: string;
+    file_size: number;
+    document_hash: string;
+  } | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFilesSelected = (files: UploadedFile[]) => {
     setUploadedFiles(files);
     setCurrentStep("processing");
-    // Start processing
-    processFiles(files);
+    setError(null);
+    // Start processing the first file (for now, handle single file)
+    processFile(files[0]);
   };
 
-  const processFiles = async (files: UploadedFile[]) => {
-    // Simulate file upload and OCR processing
-    for (const uploadedFile of files) {
-      // Upload to Supabase Storage
-      // Run OCR with OpenAI
-      // Check for duplicates
-      console.log('Processing:', uploadedFile.file.name);
-    }
+  const processFile = async (uploadedFile: UploadedFile) => {
+    setProcessing(true);
     
-    // For now, simulate the process
-    setTimeout(() => {
-      setCurrentStep("duplicate-check");
-      // Simulate finding duplicates
-      setDuplicates([]);
+    try {
+      const uploadService = new UploadService((progress) => {
+        // Update file progress
+        setUploadedFiles(prev => 
+          prev.map(f => 
+            f.file.name === uploadedFile.file.name 
+              ? { ...f, progress: progress.progress }
+              : f
+          )
+        );
+      });
+
+      const result = await uploadService.processFile(uploadedFile.file);
       
-      setTimeout(() => {
+      // Store results
+      setUploadData(result.uploadData);
+      setOcrData(result.ocrData);
+      setDuplicates(result.duplicates);
+
+      // Move to next step
+      if (result.duplicates.length > 0) {
+        setCurrentStep("duplicate-check");
+      } else {
         setCurrentStep("preview");
-        setOcrData({
-          invoice_number: "INV-2024-001",
-          amount: 125.50,
-          date: "2024-01-15",
-          provider_name: "Dr. Schmidt Praxis",
-          services: [
-            { description: "Consultation", amount: 85.00 },
-            { description: "Treatment", amount: 40.50 }
-          ]
-        });
-      }, 2000);
-    }, 3000);
+      }
+
+    } catch (err) {
+      console.error('Processing error:', err);
+      setError(err instanceof Error ? err.message : 'Processing failed');
+      setCurrentStep("upload");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleSave = async () => {
-    // Save to database
-    setCurrentStep("complete");
+    if (!ocrData || !uploadData) {
+      setError('Missing data to save invoice');
+      return;
+    }
+
+    try {
+      const uploadService = new UploadService();
+      
+      const invoiceData = {
+        file_url: uploadData.file_url,
+        file_name: uploadData.file_name,
+        file_size: uploadData.file_size,
+        document_hash: uploadData.document_hash,
+        ocr_data: ocrData,
+        amount: ocrData.amount,
+        invoice_date: ocrData.date,
+        invoice_number: ocrData.invoice_number,
+        provider_name: ocrData.provider_name,
+        provider_address: ocrData.provider_address,
+        status: 'pending'
+      };
+
+      await uploadService.saveInvoice(invoiceData);
+      setCurrentStep("complete");
+
+    } catch (err) {
+      console.error('Save error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save invoice');
+    }
   };
 
   return (
@@ -136,9 +182,30 @@ export default function UploadPage() {
         </CardContent>
       </Card>
 
+      {/* Error Display */}
+      {error && (
+        <Card className="bg-red-500/10 border-red-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full" />
+              <p className="text-red-400 font-medium">Error</p>
+            </div>
+            <p className="text-red-300 mt-2">{error}</p>
+            <Button 
+              onClick={() => setError(null)}
+              variant="outline"
+              size="sm"
+              className="mt-3 border-red-500/30 text-red-400 hover:bg-red-500/10"
+            >
+              Dismiss
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Step Content */}
       {currentStep === "upload" && (
-        <FileUploader onFilesSelected={handleFilesSelected} />
+        <FileUploader onFilesSelected={handleFilesSelected} disabled={processing} />
       )}
 
       {currentStep === "processing" && (
@@ -169,11 +236,22 @@ export default function UploadPage() {
               Your invoice has been processed and saved to your account.
             </p>
             <div className="flex justify-center space-x-4">
-              <Button asChild>
-                <Link href="/dashboard">View Dashboard</Link>
+              <Button onClick={() => router.push('/dashboard')}>
+                View Dashboard
               </Button>
-              <Button asChild variant="outline" className="border-slate-600">
-                <Link href="/dashboard/upload">Upload Another</Link>
+              <Button 
+                onClick={() => {
+                  setCurrentStep("upload");
+                  setUploadedFiles([]);
+                  setOcrData(null);
+                  setDuplicates([]);
+                  setUploadData(null);
+                  setError(null);
+                }} 
+                variant="outline" 
+                className="border-slate-600"
+              >
+                Upload Another
               </Button>
             </div>
           </CardContent>

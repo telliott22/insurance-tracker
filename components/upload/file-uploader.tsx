@@ -9,9 +9,10 @@ import { UploadedFile } from "@/types";
 
 interface FileUploaderProps {
   onFilesSelected: (files: UploadedFile[]) => void;
+  disabled?: boolean;
 }
 
-export function FileUploader({ onFilesSelected }: FileUploaderProps) {
+export function FileUploader({ onFilesSelected, disabled = false }: FileUploaderProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -32,7 +33,8 @@ export function FileUploader({ onFilesSelected }: FileUploaderProps) {
       'image/*': ['.jpg', '.jpeg', '.png']
     },
     maxFiles: 5,
-    maxSize: 10 * 1024 * 1024 // 10MB
+    maxSize: 10 * 1024 * 1024, // 10MB
+    disabled
   });
 
   const removeFile = (index: number) => {
@@ -128,7 +130,8 @@ export function FileUploader({ onFilesSelected }: FileUploaderProps) {
             <div className="mt-6 flex justify-end">
               <Button 
                 onClick={handleUpload}
-                className="bg-blue-600 hover:bg-blue-700"
+                disabled={disabled}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
               >
                 Process {files.length} File{files.length > 1 ? 's' : ''}
               </Button>
