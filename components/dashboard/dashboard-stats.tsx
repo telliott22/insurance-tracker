@@ -24,7 +24,7 @@ export async function DashboardStats({ userId }: DashboardStatsProps) {
   const totalInvoices = invoices?.length || 0;
   const pendingInvoices = invoices?.filter(inv => inv.status === 'pending').length || 0;
   const paidInvoices = invoices?.filter(inv => inv.status === 'paid').length || 0;
-  const totalAmount = invoices?.reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
+  // const totalAmount = invoices?.reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
   const totalPaid = payments?.reduce((sum, payment) => sum + (payment.amount || 0), 0) || 0;
 
   const stats = [

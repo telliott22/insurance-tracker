@@ -71,13 +71,13 @@ export function FileUploader({ onFilesSelected }: FileUploaderProps) {
               <div>
                 <p className="text-lg text-blue-400 mb-2">Drop your files here</p>
                 <p className="text-sm text-slate-400">
-                  We'll process them automatically
+                  We&apos;ll process them automatically
                 </p>
               </div>
             ) : (
               <div>
                 <p className="text-lg text-white mb-2">
-                  Drag & drop your invoices here, or click to browse
+                  Drag &amp; drop your invoices here, or click to browse
                 </p>
                 <p className="text-sm text-slate-400 mb-4">
                   Supports PDF, JPG, PNG files up to 10MB each

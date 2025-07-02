@@ -9,8 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Save, Calendar, DollarSign, FileText, Building } from "lucide-react";
 
+interface OCRData {
+  invoice_number?: string;
+  amount?: number;
+  date?: string;
+  provider_name?: string;
+  provider_address?: string;
+  services?: Array<{
+    description: string;
+    amount: number;
+  }>;
+  confidence_score?: number;
+}
+
 interface InvoicePreviewProps {
-  ocrData: any;
+  ocrData: OCRData | null;
   onSave: () => void;
   onEdit: () => void;
 }
@@ -173,7 +186,7 @@ export function InvoicePreview({ ocrData, onSave, onEdit }: InvoicePreviewProps)
             <div className="space-y-2">
               <Label className="text-slate-300">Services</Label>
               <div className="space-y-2">
-                {ocrData.services.map((service: any, index: number) => (
+                {ocrData.services.map((service, index: number) => (
                   <div key={index} className="flex justify-between p-3 bg-slate-700/30 rounded-lg">
                     <span className="text-white">{service.description}</span>
                     <span className="text-white font-medium">€{service.amount.toFixed(2)}</span>

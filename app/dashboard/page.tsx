@@ -17,19 +17,20 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(5);
 
-  const { data: payments } = await supabase
-    .from('payments')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('payment_date', { ascending: false })
-    .limit(5);
+  // Future: Use for payment tracking
+  // const { data: payments } = await supabase
+  //   .from('payments')
+  //   .select('*')
+  //   .eq('user_id', user.id)
+  //   .order('payment_date', { ascending: false })
+  //   .limit(5);
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
         <p className="text-slate-400">
-          Welcome back! Here's an overview of your insurance invoices.
+          Welcome back! Here&apos;s an overview of your insurance invoices.
         </p>
       </div>
 

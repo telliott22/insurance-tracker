@@ -5,8 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle, FileText } from "lucide-react";
 
+interface Duplicate {
+  provider_name?: string;
+  invoice_number?: string;
+  amount?: number;
+  date?: string;
+  status?: string;
+  uploaded_date?: string;
+  similarity?: number;
+}
+
 interface DuplicateCheckProps {
-  duplicates: any[];
+  duplicates: Duplicate[];
   onContinue: () => void;
 }
 

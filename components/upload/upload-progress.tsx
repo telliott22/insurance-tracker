@@ -90,7 +90,7 @@ export function UploadProgress({ files }: UploadProgressProps) {
 
         {/* Processing Info */}
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-          <h4 className="text-blue-400 font-medium mb-2">What's happening?</h4>
+          <h4 className="text-blue-400 font-medium mb-2">What&apos;s happening?</h4>
           <ul className="text-sm text-slate-300 space-y-1">
             <li>• Uploading files to secure storage</li>
             <li>• Extracting text and data using AI</li>

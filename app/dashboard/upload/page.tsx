@@ -13,11 +13,34 @@ import Link from "next/link";
 
 type UploadStep = "upload" | "processing" | "duplicate-check" | "preview" | "complete";
 
+interface OCRData {
+  invoice_number?: string;
+  amount?: number;
+  date?: string;
+  provider_name?: string;
+  provider_address?: string;
+  services?: Array<{
+    description: string;
+    amount: number;
+  }>;
+  confidence_score?: number;
+}
+
+interface Duplicate {
+  provider_name?: string;
+  invoice_number?: string;
+  amount?: number;
+  date?: string;
+  status?: string;
+  uploaded_date?: string;
+  similarity?: number;
+}
+
 export default function UploadPage() {
   const [currentStep, setCurrentStep] = useState<UploadStep>("upload");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [ocrData, setOcrData] = useState<any>(null);
-  const [duplicates, setDuplicates] = useState<any[]>([]);
+  const [ocrData, setOcrData] = useState<OCRData | null>(null);
+  const [duplicates, setDuplicates] = useState<Duplicate[]>([]);
 
   const handleFilesSelected = (files: UploadedFile[]) => {
     setUploadedFiles(files);
@@ -28,10 +51,11 @@ export default function UploadPage() {
 
   const processFiles = async (files: UploadedFile[]) => {
     // Simulate file upload and OCR processing
-    for (const file of files) {
+    for (const uploadedFile of files) {
       // Upload to Supabase Storage
       // Run OCR with OpenAI
       // Check for duplicates
+      console.log('Processing:', uploadedFile.file.name);
     }
     
     // For now, simulate the process
