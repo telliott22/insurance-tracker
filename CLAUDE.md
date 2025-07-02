@@ -214,6 +214,21 @@ Set all required environment variables in Vercel dashboard.
 - Secure file upload with type restrictions
 - API key security (never exposed to client)
 
+## GitHub Issues Tracking
+
+### Current Open Issues
+- [#1 Create invoice dashboard with spreadsheet view](https://github.com/telliott22/insurance-tracker/issues/1) - **High Priority**
+- [#2 Implement email drafting functionality](https://github.com/telliott22/insurance-tracker/issues/2) - Medium Priority  
+- [#3 Add payment tracking and excess calculations](https://github.com/telliott22/insurance-tracker/issues/3) - **High Priority**
+- [#4 Setup user settings and insurance configuration](https://github.com/telliott22/insurance-tracker/issues/4) - Medium Priority
+- [#5 Add data encryption for sensitive information](https://github.com/telliott22/insurance-tracker/issues/5) - Low Priority
+
+### Project Management
+- **Repository**: https://github.com/telliott22/insurance-tracker
+- **Issues**: Track all features and bugs via GitHub Issues
+- **Pull Requests**: Feature development with proper review process
+- **Milestones**: Group related features for release planning
+
 ## Future Enhancements
 - End-to-end encryption for sensitive data
 - Advanced OCR with multiple AI providers
