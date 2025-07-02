@@ -1,51 +1,170 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
+import { EnvVarWarning } from "@/components/env-var-warning";
 import { hasEnvVars } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import { FileText, Upload, Mail, BarChart3, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // If user is logged in, redirect to dashboard
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold">
-              <Link href={"/"}>Next.js Supabase Starter</Link>
-              <div className="flex items-center gap-2">
-                <DeployButton />
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Navigation */}
+      <nav className="w-full border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-8 w-8 text-blue-500" />
+                <span className="text-xl font-bold text-white">Insurance Tracker</span>
               </div>
             </div>
-            {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+            <div className="flex items-center space-x-4">
+              <ThemeSwitcher />
+              {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+            </div>
           </div>
-        </nav>
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          <Hero />
-          <main className="flex-1 flex flex-col gap-6 px-4">
-            <h2 className="font-medium text-xl mb-4">Next steps</h2>
-            {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-          </main>
         </div>
+      </nav>
 
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
-      </div>
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6">
+              Manage Your
+              <span className="text-blue-500 block">Health Insurance</span>
+              Invoices
+            </h1>
+            <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              Stop double-paying invoices. Upload, scan, and track your private health insurance invoices 
+              with AI-powered OCR. Automated duplicate detection and insurance company communication.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Link href="/auth/sign-up">Get Started Free</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                <Link href="/auth/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
+            Everything you need to manage invoices
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <Upload className="h-10 w-10 text-blue-500 mb-2" />
+                <CardTitle className="text-white">Smart Upload</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Drag & drop invoices with automatic OCR processing
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <FileText className="h-10 w-10 text-green-500 mb-2" />
+                <CardTitle className="text-white">Duplicate Detection</CardTitle>
+                <CardDescription className="text-slate-400">
+                  AI-powered detection prevents double payments
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <Mail className="h-10 w-10 text-purple-500 mb-2" />
+                <CardTitle className="text-white">Auto Email Drafts</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Generate emails to insurance companies automatically
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <BarChart3 className="h-10 w-10 text-orange-500 mb-2" />
+                <CardTitle className="text-white">Payment Tracking</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Track reimbursements and outstanding amounts
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
+            How it works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold">1</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Upload Invoice</h3>
+              <p className="text-slate-400">
+                Scan or upload your invoice. Our AI extracts all details automatically.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold">2</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">AI Processing</h3>
+              <p className="text-slate-400">
+                Check for duplicates and verify all invoice details are correct.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold">3</span>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Submit & Track</h3>
+              <p className="text-slate-400">
+                Send to insurance company and track payment status in real-time.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-700 bg-slate-900">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <Shield className="h-6 w-6 text-blue-500" />
+              <span className="text-lg font-semibold text-white">Insurance Tracker</span>
+            </div>
+            <p className="text-slate-400 text-sm">
+              Built with Next.js, Supabase, and OpenAI
+            </p>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
