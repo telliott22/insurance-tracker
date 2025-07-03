@@ -144,7 +144,7 @@ export default function ChatPage() {
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               rows={1}
-              className={`min-h-[48px] max-h-[200px] overflow-y-auto rounded-lg resize-none p-4 pr-16 bg-slate-800/50 border border-slate-600 text-white placeholder:text-slate-400 
+              className={`w-full min-h-[48px] max-h-[200px] overflow-y-auto rounded-lg resize-none p-4 pr-16 bg-slate-800/50 border border-slate-600 text-white placeholder:text-slate-400 
                 focus:ring-4 focus:ring-blue-600 focus:border-transparent 
                 transition-all duration-300 ease-in-out 
                 ${isInputFocused ? "shadow-lg" : ""}`}

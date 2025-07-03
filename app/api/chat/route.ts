@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     });
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo",
       messages: conversationMessages,
       max_tokens: 500,
       temperature: 0.7,
@@ -135,9 +135,9 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
       
-      if (error.message.includes('rate limit')) {
+      if (error.message.includes('rate limit') || error.message.includes('quota')) {
         return NextResponse.json({ 
-          error: 'Rate limit exceeded. Please try again later.' 
+          error: 'OpenAI quota exceeded. Please try again later or contact support.' 
         }, { status: 429 });
       }
     }
