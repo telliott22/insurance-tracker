@@ -10,9 +10,9 @@ export function Footer() {
             <Shield className="h-6 w-6 text-blue-500" />
             <span className="text-lg font-semibold text-white">Insurance Tracker</span>
           </div>
-          <div className="flex flex-col md:flex-row items-center gap-4 text-slate-400 text-sm">
+          <div className="flex flex-col items-center gap-2 text-slate-400 text-sm">
             <p>Built with Next.js, Supabase, and OpenAI</p>
-            <p>made with ❤️ in Berlin</p>
+            <p>Made with ❤️ in Berlin</p>
           </div>
         </div>
       </div>
