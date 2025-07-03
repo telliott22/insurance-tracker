@@ -2,7 +2,7 @@
  * Upload service that orchestrates file upload, OCR, and duplicate checking
  */
 
-import { fileToBase64, validateFile } from '@/lib/utils/file-processing';
+import { validateFile } from '@/lib/utils/file-processing';
 import { UploadedFile } from '@/types';
 
 interface UploadProgress {
@@ -19,39 +19,10 @@ interface UploadData {
   uploaded_at: string;
 }
 
-interface OCRData {
-  invoice_number?: string | null;
-  amount?: number | null;
-  date?: string | null;
-  provider_name?: string | null;
-  provider_address?: string | null;
-  services?: Array<{
-    description: string;
-    amount: number;
-  }>;
-  confidence_score?: number;
-  raw_text?: string;
-  extracted_at?: string;
-  file_name?: string;
-  error?: string;
-}
-
-interface Duplicate {
-  id: string;
-  provider_name?: string;
-  invoice_number?: string;
-  amount?: number;
-  date?: string;
-  status?: string;
-  uploaded_date?: string;
-  similarity?: number;
-  match_type?: string;
-}
 
 interface ProcessedInvoice {
   uploadData: UploadData | null;
-  ocrData: OCRData;
-  duplicates: Duplicate[];
+  jobId: string;
 }
 
 export class UploadService {
@@ -68,7 +39,6 @@ export class UploadService {
   }
 
   async processFile(file: File): Promise<ProcessedInvoice> {
-    // Validate file
     const validation = validateFile(file);
     if (!validation.valid) {
       throw new Error(validation.error);
@@ -77,24 +47,29 @@ export class UploadService {
     this.updateProgress('uploading', 10, 'Validating file...');
 
     try {
-      // Step 1: Upload file to Supabase Storage
-      this.updateProgress('uploading', 30, 'Uploading to secure storage...');
+      this.updateProgress('uploading', 50, 'Uploading to secure storage...');
       const uploadData = await this.uploadFile(file);
 
-      // Step 2: Process with OCR
-      this.updateProgress('processing', 50, 'Extracting text with AI...');
-      const ocrData = await this.processWithOCR(file);
+      this.updateProgress('uploading', 80, 'Creating invoice record...');
+      const invoiceData = {
+        file_url: uploadData.file_url,
+        file_name: uploadData.file_name,
+        file_size: uploadData.file_size,
+        document_hash: uploadData.document_hash,
+        status: 'pending',
+        ocr_data: {}
+      };
 
-      // Step 3: Check for duplicates
-      this.updateProgress('checking', 80, 'Checking for duplicates...');
-      const duplicates = await this.checkDuplicates(ocrData, uploadData.document_hash);
+      const invoice = await this.saveInvoice(invoiceData);
 
-      this.updateProgress('complete', 100, 'Processing complete!');
+      this.updateProgress('uploading', 90, 'Queuing for processing...');
+      const jobId = await this.createProcessingJob(invoice.id, file);
+
+      this.updateProgress('complete', 100, 'Upload complete! Processing in background...');
 
       return {
         uploadData,
-        ocrData,
-        duplicates
+        jobId
       };
 
     } catch (error) {
@@ -121,74 +96,29 @@ export class UploadService {
     return result.data;
   }
 
-  private async processWithOCR(file: File): Promise<OCRData> {
-    try {
-      // Convert file to base64
-      const base64 = await fileToBase64(file);
+  private async createProcessingJob(invoiceId: string, file: File): Promise<string> {
+    const response = await fetch('/api/jobs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        invoiceId,
+        jobType: 'ocr_processing',
+        jobData: {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type
+        }
+      })
+    });
 
-      const response = await fetch('/api/ocr', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageBase64: base64,
-          fileName: file.name
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'OCR processing failed');
-      }
-
-      const result = await response.json();
-      return result.data;
-
-    } catch (error) {
-      console.error('OCR processing error:', error);
-      // Return basic data if OCR fails
-      return {
-        invoice_number: null,
-        amount: null,
-        date: null,
-        provider_name: null,
-        provider_address: null,
-        services: [],
-        confidence_score: 0,
-        error: 'OCR processing failed'
-      };
+    if (!response.ok) {
+      throw new Error('Failed to create processing job');
     }
-  }
 
-  private async checkDuplicates(ocrData: OCRData, documentHash: string): Promise<Duplicate[]> {
-    try {
-      const response = await fetch('/api/duplicates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          documentHash,
-          invoiceNumber: ocrData.invoice_number,
-          amount: ocrData.amount,
-          providerName: ocrData.provider_name,
-          invoiceDate: ocrData.date
-        })
-      });
-
-      if (!response.ok) {
-        console.error('Duplicate check failed');
-        return [];
-      }
-
-      const result = await response.json();
-      return result.data.duplicates || [];
-
-    } catch (error) {
-      console.error('Duplicate check error:', error);
-      return [];
-    }
+    const result = await response.json();
+    return result.data.id;
   }
 
   async saveInvoice(invoiceData: {
@@ -196,7 +126,7 @@ export class UploadService {
     file_name: string;
     file_size: number;
     document_hash: string;
-    ocr_data: OCRData;
+    ocr_data?: Record<string, unknown>;
     amount?: number | null;
     invoice_date?: string | null;
     invoice_number?: string | null;
@@ -245,8 +175,7 @@ export async function processMultipleFiles(
       // Add error result
       results.push({
         uploadData: null,
-        ocrData: { error: error instanceof Error ? error.message : 'Unknown error' },
-        duplicates: []
+        jobId: ''
       });
     }
   }
