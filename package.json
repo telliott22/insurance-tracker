@@ -6,7 +6,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "echo 'No tests yet' && exit 0",
+    "test": "jest",
     "db:push": "source .env.local && supabase db push -p $SUPABASE_DB_PASSWORD",
     "db:migrate": "supabase migration new"
   },
