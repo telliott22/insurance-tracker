@@ -51,6 +51,11 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        "app-dark-bg": "#0f172a",
+        "app-card-bg": "#1e293b",
+        "app-blue": "#3b82f6",
+        "app-green": "#10b981",
+        "app-purple": "#8b5cf6",
       },
       borderRadius: {
         lg: "var(--radius)",
