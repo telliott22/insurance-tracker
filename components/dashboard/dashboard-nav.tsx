@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, LayoutDashboard, FileText, CreditCard, Settings, Upload } from "lucide-react";
+import { Shield, LayoutDashboard, FileText, CreditCard, Settings, Upload, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -17,6 +17,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
   { name: "Payments", href: "/dashboard/payments", icon: CreditCard },
+  { name: "AI Assistant", href: "/chat", icon: MessageCircle },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
