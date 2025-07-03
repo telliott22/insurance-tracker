@@ -153,6 +153,44 @@ export interface Database {
           created_at?: string
         }
       }
+      processing_jobs: {
+        Row: {
+          id: string
+          user_id: string
+          invoice_id: string | null
+          job_type: 'ocr_processing' | 'duplicate_check'
+          status: 'pending' | 'processing' | 'completed' | 'failed'
+          job_data: Json
+          result_data: Json
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          invoice_id?: string | null
+          job_type: 'ocr_processing' | 'duplicate_check'
+          status?: 'pending' | 'processing' | 'completed' | 'failed'
+          job_data?: Json
+          result_data?: Json
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          invoice_id?: string | null
+          job_type?: 'ocr_processing' | 'duplicate_check'
+          status?: 'pending' | 'processing' | 'completed' | 'failed'
+          job_data?: Json
+          result_data?: Json
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -191,10 +229,16 @@ export type InsuranceDocument = Database['public']['Tables']['insurance_document
 export type InsuranceDocumentInsert = Database['public']['Tables']['insurance_documents']['Insert']
 export type InsuranceDocumentUpdate = Database['public']['Tables']['insurance_documents']['Update']
 
+export type ProcessingJob = Database['public']['Tables']['processing_jobs']['Row']
+export type ProcessingJobInsert = Database['public']['Tables']['processing_jobs']['Insert']
+export type ProcessingJobUpdate = Database['public']['Tables']['processing_jobs']['Update']
+
 // Invoice status types
 export type InvoiceStatus = 'pending' | 'submitted' | 'paid' | 'rejected'
 export type PaymentType = 'bank_transfer' | 'adjustment' | 'partial'
 export type DocumentType = 'policy' | 'excess_rules' | 'terms' | 'contract'
+export type JobType = 'ocr_processing' | 'duplicate_check'
+export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
 // OCR data structure
 export interface OCRData {
