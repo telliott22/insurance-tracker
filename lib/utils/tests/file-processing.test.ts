@@ -5,7 +5,7 @@ import {
   formatFileSize,
   generateUniqueFilename,
   fileToBase64,
-} from '@/lib/utils/file-processing'
+} from '../file-processing'
 
 describe('File Processing Utils', () => {
   describe('validateFile', () => {

@@ -1,7 +1,7 @@
-import { UploadService } from '@/lib/services/upload-service'
-import { sampleFile, sampleOCRData } from '../fixtures/sample-data'
+import { UploadService } from '../upload-service'
+import { sampleFile, sampleOCRData } from '../../../__tests__/fixtures/sample-data'
 
-jest.mock('@/lib/utils/file-processing', () => ({
+jest.mock('../../../lib/utils/file-processing', () => ({
   validateFile: jest.fn(() => ({ valid: true })),
   fileToBase64: jest.fn(() => Promise.resolve('mockBase64Data')),
 }))

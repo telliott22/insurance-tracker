@@ -9,8 +9,8 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   testMatch: [
-    '<rootDir>/__tests__/**/*.test.{js,jsx,ts,tsx}',
-    '<rootDir>/__tests__/**/*.spec.{js,jsx,ts,tsx}'
+    '<rootDir>/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/**/*.spec.{js,jsx,ts,tsx}'
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
