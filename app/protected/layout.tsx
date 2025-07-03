@@ -40,6 +40,7 @@ export default function ProtectedLayout({
               Supabase
             </a>
           </p>
+          <p>made with ❤️ in Berlin</p>
           <ThemeSwitcher />
         </footer>
       </div>
