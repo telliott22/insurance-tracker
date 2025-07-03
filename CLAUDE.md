@@ -22,11 +22,11 @@ Copy `.env.example` to `.env.local` and add:
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
+# Database password for migrations (from Supabase Settings > Database)
+SUPABASE_DB_PASSWORD=your-database-password
+
 # OpenAI Configuration  
 OPENAI_API_KEY=your-openai-api-key
-
-# Resend Configuration (for email sending)
-RESEND_API_KEY=your-resend-api-key
 ```
 
 ### Getting API Keys
@@ -38,10 +38,6 @@ RESEND_API_KEY=your-resend-api-key
 2. **OpenAI**:
    - Visit https://platform.openai.com/api-keys
    - Create new secret key for GPT-4o Vision API
-
-3. **Resend**:
-   - Go to https://resend.com/api-keys
-   - Create API key for email sending
 
 ## Development Commands
 

@@ -1,8 +1,6 @@
--- Initial schema for Private Health Insurance Tracker
--- Created: 2025-07-01
-
--- Enable RLS on auth.users
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+-- Fixed Initial schema for Private Health Insurance Tracker
+-- Created: 2025-07-03
+-- Note: Removed auth.users modification as it's a system table
 
 -- Users table (extends auth.users)
 CREATE TABLE public.users (
@@ -166,7 +164,3 @@ CREATE TRIGGER update_users_updated_at
 CREATE TRIGGER update_invoices_updated_at
   BEFORE UPDATE ON public.invoices
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-
--- Enable Supabase Storage
--- This will be handled through the Supabase dashboard
--- Buckets needed: 'invoices', 'insurance-documents'

@@ -10,16 +10,20 @@ import { Badge } from "@/components/ui/badge";
 import { Edit2, Save, Calendar, DollarSign, FileText, Building } from "lucide-react";
 
 interface OCRData {
-  invoice_number?: string;
-  amount?: number;
-  date?: string;
-  provider_name?: string;
-  provider_address?: string;
+  invoice_number?: string | null;
+  amount?: number | null;
+  date?: string | null;
+  provider_name?: string | null;
+  provider_address?: string | null;
   services?: Array<{
     description: string;
     amount: number;
   }>;
   confidence_score?: number;
+  raw_text?: string;
+  extracted_at?: string;
+  file_name?: string;
+  error?: string;
 }
 
 interface InvoicePreviewProps {

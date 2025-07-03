@@ -58,10 +58,17 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    // Get signed URL for private access (expires in 1 hour)
+    const { data: { signedUrl }, error: signUrlError } = await supabase.storage
       .from('invoices')
-      .getPublicUrl(uniqueFileName);
+      .createSignedUrl(uniqueFileName, 3600);
+
+    if (signUrlError) {
+      console.error('Signed URL error:', signUrlError);
+      return NextResponse.json({ 
+        error: 'Failed to create file access URL' 
+      }, { status: 500 });
+    }
 
     // Generate document hash for duplicate detection
     const documentHash = crypto
@@ -72,7 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        file_url: publicUrl,
+        file_url: signedUrl,
         file_path: uniqueFileName,
         file_name: file.name,
         file_size: file.size,
