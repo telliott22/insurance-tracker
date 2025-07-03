@@ -55,7 +55,7 @@ export default function UploadPage() {
       const result = await uploadService.processFile(uploadedFile.file);
       
       setUploadData(result.uploadData);
-      setJobId(result.jobId);
+      setJobId(result.jobId || null);
       
       console.log('Upload completed:', { uploadData: result.uploadData, jobId: result.jobId });
 

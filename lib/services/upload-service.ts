@@ -19,10 +19,40 @@ interface UploadData {
   uploaded_at: string;
 }
 
+interface OCRData {
+  invoice_number?: string | null;
+  amount?: number | null;
+  date?: string | null;
+  provider_name?: string | null;
+  provider_address?: string | null;
+  services?: Array<{
+    description: string;
+    amount: number;
+  }>;
+  confidence_score?: number;
+  raw_text?: string;
+  extracted_at?: string;
+  file_name?: string;
+  error?: string;
+}
+
+interface Duplicate {
+  id: string;
+  provider_name?: string;
+  invoice_number?: string;
+  amount?: number;
+  date?: string;
+  status?: string;
+  uploaded_date?: string;
+  similarity?: number;
+  match_type?: string;
+}
 
 interface ProcessedInvoice {
   uploadData: UploadData | null;
-  jobId: string;
+  ocrData: OCRData;
+  duplicates: Duplicate[];
+  jobId?: string;
 }
 
 export class UploadService {
@@ -69,6 +99,20 @@ export class UploadService {
 
       return {
         uploadData,
+        ocrData: {
+          invoice_number: null,
+          amount: null,
+          date: null,
+          provider_name: null,
+          provider_address: null,
+          services: [],
+          confidence_score: 0,
+          raw_text: '',
+          extracted_at: new Date().toISOString(),
+          file_name: uploadData.file_name,
+          error: 'Processing queued for background execution'
+        },
+        duplicates: [],
         jobId
       };
 
@@ -175,6 +219,11 @@ export async function processMultipleFiles(
       // Add error result
       results.push({
         uploadData: null,
+        ocrData: { 
+          error: error instanceof Error ? error.message : 'Unknown error',
+          confidence_score: 0
+        },
+        duplicates: [],
         jobId: ''
       });
     }
