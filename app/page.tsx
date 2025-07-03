@@ -8,6 +8,7 @@ import Link from "next/link";
 import { FileText, Upload, Mail, BarChart3, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Footer } from "@/components/ui/footer";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -152,19 +153,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-700 bg-slate-900">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <Shield className="h-6 w-6 text-blue-500" />
-              <span className="text-lg font-semibold text-white">Insurance Tracker</span>
-            </div>
-            <p className="text-slate-400 text-sm">
-              Built with Next.js, Supabase, and OpenAI
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
