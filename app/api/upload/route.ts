@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get signed URL for private access (expires in 1 hour)
-    const { data: { signedUrl }, error: signUrlError } = await supabase.storage
+    const { data: signedUrlData, error: signUrlError } = await supabase.storage
       .from('invoices')
       .createSignedUrl(uniqueFileName, 3600);
 
-    if (signUrlError) {
+    if (signUrlError || !signedUrlData) {
       console.error('Signed URL error:', signUrlError);
       return NextResponse.json({ 
         error: 'Failed to create file access URL' 
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        file_url: signedUrl,
+        file_url: signedUrlData.signedUrl,
         file_path: uniqueFileName,
         file_name: file.name,
         file_size: file.size,
