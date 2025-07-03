@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { createClient } from '@/lib/supabase/server';
+import { CHAT_ASSISTANT_SYSTEM_PROMPT } from '@/lib/prompts/chat-assistant';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,52 +75,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { message } = await request.json();
+    const { message, messages } = await request.json();
 
     if (!message) {
       return NextResponse.json({ error: 'No message provided' }, { status: 400 });
     }
 
-    const systemPrompt = `You are an AI assistant for a German private health insurance tracker application. You help users understand their insurance policies, track reimbursements, and manage their healthcare invoices.
+    const conversationMessages = [];
+    
+    const systemPrompt = CHAT_ASSISTANT_SYSTEM_PROMPT
+      .replace('{policies}', JSON.stringify(mockUserData.policies, null, 2))
+      .replace('{invoices}', JSON.stringify(mockUserData.invoices, null, 2))
+      .replace('{reimbursements}', JSON.stringify(mockUserData.reimbursements, null, 2))
+      .replace('{statistics}', JSON.stringify(mockUserData.statistics, null, 2));
+    
+    conversationMessages.push({
+      role: "system",
+      content: systemPrompt
+    });
 
-Here is the user's current insurance data:
+    if (messages && Array.isArray(messages)) {
+      const recentMessages = messages.slice(-10);
+      conversationMessages.push(...recentMessages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })));
+    }
 
-INSURANCE POLICIES:
-${JSON.stringify(mockUserData.policies, null, 2)}
-
-RECENT INVOICES:
-${JSON.stringify(mockUserData.invoices, null, 2)}
-
-REIMBURSEMENT SUMMARY:
-${JSON.stringify(mockUserData.reimbursements, null, 2)}
-
-STATISTICS:
-${JSON.stringify(mockUserData.statistics, null, 2)}
-
-IMPORTANT INSTRUCTIONS:
-- Only answer questions based on the provided data above
-- If information is not available in the data, clearly state that you don't have that information
-- Be helpful and conversational, but stay focused on insurance-related topics
-- Provide specific numbers and details when available
-- Help users understand their reimbursement status and policy details
-- If asked about invoices, refer to the specific invoice IDs and amounts
-- Convert amounts to EUR when discussing money
-- Be concise but informative in your responses
-
-Answer the user's question based only on the provided insurance data.`;
+    conversationMessages.push({
+      role: "user",
+      content: message
+    });
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: message
-        }
-      ],
+      messages: conversationMessages,
       max_tokens: 500,
       temperature: 0.7,
     });

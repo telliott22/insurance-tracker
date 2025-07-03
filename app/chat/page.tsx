@@ -29,7 +29,8 @@ export default function ChatPage() {
     if (input.trim() === "") return
 
     const newMessage: Message = { id: Date.now().toString(), role: "user", content: input }
-    setMessages((prevMessages) => [...prevMessages, newMessage])
+    const updatedMessages = [...messages, newMessage]
+    setMessages(updatedMessages)
     setInput("")
     setIsLoading(true)
 
@@ -39,7 +40,10 @@ export default function ChatPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          messages: updatedMessages.map(msg => ({ role: msg.role, content: msg.content }))
+        }),
       })
 
       if (!response.ok) {
